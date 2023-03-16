@@ -6,8 +6,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import skhumeet.backend.domain.Authority;
-import skhumeet.backend.domain.Member;
+import skhumeet.backend.domain.member.Authority;
+import skhumeet.backend.domain.member.Member;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
