@@ -14,6 +14,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.CorsUtils;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import skhumeet.backend.service.MemberService;
 import skhumeet.backend.token.JwtFilter;
 import skhumeet.backend.token.TokenProvider;
 
@@ -24,6 +25,7 @@ import java.util.List;
 @Configuration
 public class SecurityConfig {
     private final TokenProvider tokenProvider;
+    private final MemberService memberService;
     private static final String[] PERMITTED_URLS = {
             /* Swagger v2 */
             "/v2/api-docs",
@@ -41,6 +43,8 @@ public class SecurityConfig {
             /* Login API */
             "/api/member/**",
             "/api/firebase/**",
+            "/oauth2/authorization/naver",
+            "/oauth2/code/naver",
             /* Static objects */
             "/favicon.ico"
     };
@@ -60,7 +64,11 @@ public class SecurityConfig {
                 .authorizeRequests()
                 .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
                 .antMatchers(PERMITTED_URLS).permitAll()
-                .anyRequest().authenticated();
+                .anyRequest().authenticated()
+                .and()
+                .oauth2Login()
+                .userInfoEndpoint()
+                .userService(memberService);
 
         http
                 .addFilterBefore(new JwtFilter(tokenProvider), UsernamePasswordAuthenticationFilter.class);
@@ -71,7 +79,6 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.addAllowedOrigin("http://localhost:3000");
-        configuration.addAllowedOrigin("http://api-liferary.duckdns.org");
         configuration.setAllowedMethods(List.of(
                 HttpMethod.GET.name(),
                 HttpMethod.POST.name(),
@@ -86,23 +93,23 @@ public class SecurityConfig {
         return source;
     }
 
-    @Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
-        return (web) -> web.ignoring()
-                .antMatchers(HttpMethod.GET, "/favicon.ico")
-                .antMatchers("/v2/api-docs",
-                        "/v2/api-docs/**",
-                        "/swagger-resources",
-                        "/swagger-resources/**",
-                        "/configuration/ui",
-                        "/configuration/security",
-                        "/swagger-ui.html",
-                        "/webjars/**",
-                        "/api-docs/**",
-                        "/v3/api-docs/**",
-                        "/swagger-ui/**",
-                        "/api/member/join",
-                        "/api/member/login")
-                .antMatchers(HttpMethod.POST, "/api/firebase/login");
-    }
+//    @Bean
+//    public WebSecurityCustomizer webSecurityCustomizer() {
+//        return (web) -> web.ignoring()
+//                .antMatchers(HttpMethod.GET, "/favicon.ico")
+//                .antMatchers("/v2/api-docs",
+//                        "/v2/api-docs/**",
+//                        "/swagger-resources",
+//                        "/swagger-resources/**",
+//                        "/configuration/ui",
+//                        "/configuration/security",
+//                        "/swagger-ui.html",
+//                        "/webjars/**",
+//                        "/api-docs/**",
+//                        "/v3/api-docs/**",
+//                        "/swagger-ui/**",
+//                        "/api/member/join",
+//                        "/api/member/login")
+//                .antMatchers(HttpMethod.POST, "/api/firebase/login");
+//    }
 }

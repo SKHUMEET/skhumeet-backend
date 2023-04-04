@@ -6,6 +6,9 @@ import lombok.*;
 public class MemberDTO {
     @Getter
     @Setter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class JoinRequest {
         private String memberNumber;
         private String email;

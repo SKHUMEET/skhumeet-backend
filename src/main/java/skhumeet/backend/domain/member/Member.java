@@ -13,7 +13,7 @@ import javax.persistence.*;
 @AllArgsConstructor
 @Entity
 public class Member {
-    @Id @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "member_id")
     private int id;
 
@@ -23,17 +23,25 @@ public class Member {
 
     // 아이디
     @Column(nullable = false, unique = true)
-    private String email;
-
-    // 비밀번호
-    @Column(nullable = false)
-    private String password;
+    private String loginId;
+//
+//    // 비밀번호
+//    @Column(nullable = false)
+//    private String password;
 
     // 이름
     @Column(nullable = false)
     private String name;
 
+    // 별명
+    @Column(nullable = false)
+    private String nickname;
+
     // 권한
     @Enumerated(EnumType.STRING)
     private Authority authority;
+
+    // 프로필 이미지
+    @Column(name = "profile_image")
+    private String profileImage;
 }
