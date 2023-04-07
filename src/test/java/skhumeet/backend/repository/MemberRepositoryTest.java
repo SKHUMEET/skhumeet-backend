@@ -1,3 +1,4 @@
+
 package skhumeet.backend.repository;
 
 import org.assertj.core.api.Assertions;
@@ -36,3 +37,4 @@ public class MemberRepositoryTest {
 //        Assertions.assertThat(findByMemberNumber.equals(findByEmail)).isTrue();
     }
 }
+
