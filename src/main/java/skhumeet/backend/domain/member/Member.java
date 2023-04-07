@@ -24,10 +24,6 @@ public class Member {
     // 아이디
     @Column(nullable = false, unique = true)
     private String loginId;
-//
-//    // 비밀번호
-//    @Column(nullable = false)
-//    private String password;
 
     // 이름
     @Column(nullable = false)
@@ -44,4 +40,10 @@ public class Member {
     // 프로필 이미지
     @Column(name = "profile_image")
     private String profileImage;
+
+    public Member update(String name, String profileImage) {
+        this.name = name;
+        this.profileImage = profileImage;
+        return this;
+    }
 }

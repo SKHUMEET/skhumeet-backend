@@ -25,13 +25,13 @@ spring:
           naver:
             client-id: ${NAVER_CLIENT_ID}
             client-secret: ${NAVER_CLIENT_SECRET}
+            client-name: Naver
             redirect-uri: http://localhost:8080/login/oauth2/code/naver
             authorization-grant-type: authorization_code
             scope:
-              - nickname
-              - email
               - name
-            client-name: Naver
+              - nickname
+              - profile_image
         provider:
           naver:
             authorization-uri: https://nid.naver.com/oauth2.0/authorize

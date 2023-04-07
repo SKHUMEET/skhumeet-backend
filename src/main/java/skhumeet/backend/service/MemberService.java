@@ -1,72 +1,64 @@
 package skhumeet.backend.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
-import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
-import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
-import skhumeet.backend.domain.member.Member;
-import skhumeet.backend.domain.member.MemberDTO;
-import skhumeet.backend.domain.member.NaverUserInfo;
-import skhumeet.backend.domain.member.OAuth2UserInfo;
+import skhumeet.backend.domain.dto.HttpResponseDTO;
+import skhumeet.backend.domain.dto.MemberDTO;
+import skhumeet.backend.domain.member.*;
 import skhumeet.backend.repository.MemberRepository;
+import skhumeet.backend.token.TokenProvider;
 
 import javax.validation.Valid;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.*;
 
 @RequiredArgsConstructor
 @Service
-public class MemberService extends DefaultOAuth2UserService {
+public class MemberService {
+    private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final MemberRepository memberRepository;
-    private final PasswordEncoder passwordEncoder;
+    private final TokenProvider tokenProvider;
 
-    @Override
-    public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
-        OAuth2User oAuth2User = super.loadUser(userRequest);
-        OAuth2UserInfo oAuth2UserInfo = null;
-        String provider = userRequest.getClientRegistration().getRegistrationId();
-
-        if(provider.equals("naver")) {
-            oAuth2UserInfo = new NaverUserInfo(oAuth2User.getAttributes());
+    @Transactional
+    public ResponseEntity<HttpResponseDTO> login(MemberDTO.@Valid Request request) {
+        if (memberRepository.findByLoginId(request.getLoginId()).isEmpty()) {
+            return new ResponseEntity<>(
+                    new HttpResponseDTO("Member not found, signup needed", request.getLoginId()), HttpStatus.NOT_FOUND
+            );
         }
-
-        Optional<Member> optionalMember = memberRepository.findByLoginId(oAuth2UserInfo.getProviderId());
-        Member member = null;
-
-        return oAuth2User;
+        return ResponseEntity.ok(
+                new HttpResponseDTO("Login success", tokenProvider.createTokens(request.getLoginId()))
+        );
     }
 
     @Transactional
-    public MemberDTO.Response join(MemberDTO.@Valid JoinRequest request) {
-        if(memberRepository.findByMemberNumber(request.getMemberNumber()).isPresent()) {
-            throw new IllegalArgumentException("Already joined member");
+    public ResponseEntity<HttpResponseDTO> join(MemberDTO.@Valid Request request) {
+        if (memberRepository.findByLoginId(request.getLoginId()).isPresent()) {
+            throw new IllegalArgumentException("Duplicated ID that provided from OAuth 2.0 API");
         }
-        if(!request.getPassword().equals(request.getCheckedPassword())) {
-            throw new IllegalArgumentException("Password mismatch");
-        }
-        request.setPassword(passwordEncoder.encode(request.getPassword()));
-        memberRepository.saveAndFlush(request.toEntity());
-        return new MemberDTO.Response(memberRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new NoSuchElementException("Member not found, member save failed")));
+        Member member = memberRepository.saveAndFlush(request.toEntity());
+
+        return ResponseEntity.ok(new HttpResponseDTO("Join success", new MemberDTO.Response(member)));
     }
 
+    /* 회원가입 시, 유효성 체크 */
     @Transactional(readOnly = true)
     public Map<String, String> validateHandling(Errors errors) {
         Map<String, String> validatorResult = new HashMap<>();
 
+        /* 유효성 검사에 실패한 필드 목록을 받음 */
         for (FieldError error : errors.getFieldErrors()) {
             String validKeyName = String.format("valid_%s", error.getField());
             validatorResult.put(validKeyName, error.getDefaultMessage());
         }
-
         return validatorResult;
     }
 }

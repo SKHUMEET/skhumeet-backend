@@ -7,7 +7,7 @@ import skhumeet.backend.domain.member.Member;
 import java.util.Optional;
 
 @Repository
-public interface MemberRepository extends JpaRepository<Member, Long> {
+public interface MemberRepository extends JpaRepository<Member, Integer> {
     Optional<Member> findByMemberNumber(String memberNumber);
     Optional<Member> findByLoginId(String loginId);
 }
