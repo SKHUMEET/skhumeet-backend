@@ -2,7 +2,7 @@ package skhumeet.backend.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import skhumeet.backend.domain.Member;
+import skhumeet.backend.domain.member.Member;
 
 import java.util.Optional;
 
