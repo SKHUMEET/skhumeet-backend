@@ -20,20 +20,20 @@ import skhumeet.backend.service.MemberService;
 
 import java.util.Map;
 
-@Tag(name = "Member API", description = "API for authentication and authorization")
+@Tag(name = "Member API (회원 관련 API)", description = "API for authentication and authorization (사용자 인증과 인가를 위한 API)")
 @RequestMapping("/api/member")
 @RequiredArgsConstructor
 @RestController
 public class MemberController {
     private final MemberService memberService;
 
-    @Operation(summary = "Join API", description = "Join with OAuth 2.0 accounts")
+    @Operation(summary = "Join API (회원가입 API)", description = "Join with OAuth 2.0 accounts (OAuth 2.0 로그인을 통해 제공받은 정보들로 회원가입")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "400", description = "Bad Request")
     })
     @PostMapping("/join")
-    public ResponseEntity<HttpResponseDTO> join(@RequestBody @Validated MemberDTO.Request request, Errors errors, Model model) {
+    public ResponseEntity<HttpResponseDTO> join(@RequestBody @Validated MemberDTO.Join request, Errors errors, Model model) {
         if (errors.hasErrors()) {
             System.out.println(errors);
             /* 유효성 통과 못한 필드와 메시지를 핸들링 */
@@ -49,13 +49,13 @@ public class MemberController {
         return memberService.join(request);
     }
 
-    @Operation(summary = "Login API", description = "Login with OAuth 2.0")
+    @Operation(summary = "Login API (로그인 API)", description = "Login with OAuth 2.0 (OAuth 2.0 로그인을 통해 제공 받은 ID 값으로 서비스 로그인)")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "400", description = "Bad Request")
     })
     @PostMapping("/login")
-    public ResponseEntity<HttpResponseDTO> login(@RequestBody MemberDTO.Request request) {
+    public ResponseEntity<HttpResponseDTO> login(@RequestBody MemberDTO.Login request) {
         return memberService.login(request);
     }
 }

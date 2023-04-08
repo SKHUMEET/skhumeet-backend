@@ -22,21 +22,13 @@ import java.util.Map;
 @Component
 public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
     private final TokenProvider tokenProvider;
-    private final MemberRepository memberRepository;
-    private final ObjectMapper objectMapper;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
         Map<String, Object> attributes = oAuth2User.getAttributes();
-        MemberDTO.Response memberResponse = MemberDTO.Response.builder()
-                .id(attributes.get("id").toString())
-                .name(attributes.get("name").toString())
-                .nickname(attributes.get("nickname").toString())
-                .profileImage(attributes.get("profile_image").toString())
-                .build();
 
-        TokenDTO tokens = tokenProvider.createTokens(memberResponse.getId());
+        TokenDTO tokens = tokenProvider.createTokens(attributes.get("id").toString());
 
         String targetUrl = UriComponentsBuilder.fromUriString("/")
                 .queryParam("accessToken", tokens.getAccessToken())

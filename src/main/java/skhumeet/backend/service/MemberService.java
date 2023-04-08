@@ -3,10 +3,7 @@ package skhumeet.backend.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Errors;
@@ -28,7 +25,7 @@ public class MemberService {
     private final TokenProvider tokenProvider;
 
     @Transactional
-    public ResponseEntity<HttpResponseDTO> login(MemberDTO.@Valid Request request) {
+    public ResponseEntity<HttpResponseDTO> login(MemberDTO.@Valid Login request) {
         if (memberRepository.findByLoginId(request.getLoginId()).isEmpty()) {
             return new ResponseEntity<>(
                     new HttpResponseDTO("Member not found, signup needed", request.getLoginId()), HttpStatus.NOT_FOUND
@@ -40,7 +37,7 @@ public class MemberService {
     }
 
     @Transactional
-    public ResponseEntity<HttpResponseDTO> join(MemberDTO.@Valid Request request) {
+    public ResponseEntity<HttpResponseDTO> join(MemberDTO.@Valid Join request) {
         if (memberRepository.findByLoginId(request.getLoginId()).isPresent()) {
             throw new IllegalArgumentException("Duplicated ID that provided from OAuth 2.0 API");
         }
