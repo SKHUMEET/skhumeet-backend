@@ -47,9 +47,9 @@ public class MemberService {
             throw new IllegalArgumentException("Duplicated ID that provided from OAuth 2.0 API");
         }
 
-        TokenDTO tokens = tokenProvider.createTokens(request.getLoginId());
         Member member = memberRepository.saveAndFlush(request.toEntity());
         MemberDTO.Response memberInfo = new MemberDTO.Response(member);
+        TokenDTO tokens = tokenProvider.createTokens(request.getLoginId());
 
         return ResponseEntity.ok(new HttpResponseDTO("Join success", tokens, memberInfo));
     }
