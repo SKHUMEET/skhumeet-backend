@@ -10,6 +10,7 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
 import skhumeet.backend.domain.dto.HttpResponseDTO;
 import skhumeet.backend.domain.dto.MemberDTO;
+import skhumeet.backend.domain.dto.TokenDTO;
 import skhumeet.backend.domain.member.*;
 import skhumeet.backend.repository.MemberRepository;
 import skhumeet.backend.token.TokenProvider;
@@ -28,12 +29,16 @@ public class MemberService {
     public ResponseEntity<HttpResponseDTO> login(MemberDTO.@Valid Login request) {
         if (memberRepository.findByLoginId(request.getLoginId()).isEmpty()) {
             return new ResponseEntity<>(
-                    new HttpResponseDTO("Member not found, signup needed", request.getLoginId()), HttpStatus.NOT_FOUND
+                    new HttpResponseDTO("Member not found, signup needed", null, request.getLoginId()), HttpStatus.NOT_FOUND
             );
         }
-        return ResponseEntity.ok(
-                new HttpResponseDTO("Login success", tokenProvider.createTokens(request.getLoginId()))
-        );
+
+        // Response DTOs
+        TokenDTO tokens = tokenProvider.createTokens(request.getLoginId());
+        MemberDTO.Response memberInfo = new MemberDTO.Response(memberRepository.findByLoginId(request.getLoginId())
+                .orElseThrow(() -> new NoSuchElementException("Member not found")));
+
+        return ResponseEntity.ok(new HttpResponseDTO("Login success", tokens, memberInfo));
     }
 
     @Transactional
@@ -41,9 +46,12 @@ public class MemberService {
         if (memberRepository.findByLoginId(request.getLoginId()).isPresent()) {
             throw new IllegalArgumentException("Duplicated ID that provided from OAuth 2.0 API");
         }
-        Member member = memberRepository.saveAndFlush(request.toEntity());
 
-        return ResponseEntity.ok(new HttpResponseDTO("Join success", new MemberDTO.Response(member)));
+        Member member = memberRepository.saveAndFlush(request.toEntity());
+        MemberDTO.Response memberInfo = new MemberDTO.Response(member);
+        TokenDTO tokens = tokenProvider.createTokens(request.getLoginId());
+
+        return ResponseEntity.ok(new HttpResponseDTO("Join success", tokens, memberInfo));
     }
 
     /* 회원가입 시, 유효성 체크 */
