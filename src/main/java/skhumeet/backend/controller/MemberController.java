@@ -43,7 +43,7 @@ public class MemberController {
             }
             /* 입력한 내용을 유지하고자 응답 DTO에 담아서 보냄 */
             return new ResponseEntity<>(
-                    new HttpResponseDTO(errors.toString(), new MemberDTO.Response(request.toEntity())), HttpStatus.BAD_REQUEST
+                    new HttpResponseDTO(errors.toString(), null, new MemberDTO.Response(request.toEntity())), HttpStatus.BAD_REQUEST
             );
         }
         return memberService.join(request);

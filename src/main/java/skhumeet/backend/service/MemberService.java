@@ -28,11 +28,16 @@ public class MemberService {
     public ResponseEntity<HttpResponseDTO> login(MemberDTO.@Valid Login request) {
         if (memberRepository.findByLoginId(request.getLoginId()).isEmpty()) {
             return new ResponseEntity<>(
-                    new HttpResponseDTO("Member not found, signup needed", request.getLoginId()), HttpStatus.NOT_FOUND
+                    new HttpResponseDTO("Member not found, signup needed", null, request.getLoginId()), HttpStatus.NOT_FOUND
             );
         }
         return ResponseEntity.ok(
-                new HttpResponseDTO("Login success", tokenProvider.createTokens(request.getLoginId()))
+                new HttpResponseDTO(
+                        "Login success",
+                        tokenProvider.createTokens(request.getLoginId()),
+                        new MemberDTO.Response(memberRepository.findByLoginId(request.getLoginId())
+                                .orElseThrow(() -> new NoSuchElementException("Member not found")))
+                )
         );
     }
 
@@ -43,7 +48,7 @@ public class MemberService {
         }
         Member member = memberRepository.saveAndFlush(request.toEntity());
 
-        return ResponseEntity.ok(new HttpResponseDTO("Join success", new MemberDTO.Response(member)));
+        return ResponseEntity.ok(new HttpResponseDTO("Join success", null, new MemberDTO.Response(member)));
     }
 
     /* 회원가입 시, 유효성 체크 */
