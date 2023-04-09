@@ -1,6 +1,5 @@
 package skhumeet.backend.domain.study;
 
-import com.google.type.DateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,6 +10,7 @@ import skhumeet.backend.util.StringListConverter;
 
 import javax.persistence.*;
 import javax.validation.constraints.Size;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -43,7 +43,7 @@ public class Post extends BaseTime {
 
     //마감일
     @Column(name="endDate")
-    private DateTime endDate;
+    private LocalDateTime endDate;
 
     //조회수
     @Column(name="view")
