@@ -2,10 +2,9 @@ package skhumeet.backend.domain.study;
 
 
 public enum Situation {
-
-    Recruiting, //모집중
-    Recruitment_deadline, //모집 완료
-    Promotion, //홍보
-    Activity //활동
+    RECRUITING, //모집중
+    RECRUITMENT_DEADLINE, //모집 완료
+    PROMOTION, //홍보
+    ACTIVITY //활동
 
 }
