@@ -16,6 +16,7 @@ import skhumeet.backend.repository.MemberRepository;
 import skhumeet.backend.token.TokenProvider;
 
 import javax.validation.Valid;
+import java.io.IOException;
 import java.util.*;
 
 @RequiredArgsConstructor
@@ -46,12 +47,29 @@ public class MemberService {
         if (memberRepository.findByLoginId(request.getLoginId()).isPresent()) {
             throw new IllegalArgumentException("Duplicated ID that provided from OAuth 2.0 API");
         }
+        if (memberRepository.findByMemberNumber(request.getMemberNumber()).isPresent()) {
+            throw new IllegalArgumentException("Duplicated ID of SKHU, please check your ID");
+        }
 
         Member member = memberRepository.saveAndFlush(request.toEntity());
         MemberDTO.Response memberInfo = new MemberDTO.Response(member);
         TokenDTO tokens = tokenProvider.createTokens(request.getLoginId());
 
         return ResponseEntity.ok(new HttpResponseDTO("Join success", tokens, memberInfo));
+    }
+
+    //Update
+    @Transactional
+    public MemberDTO.Response update(String username, MemberDTO.Update update) throws IOException {
+        Member member = memberRepository.findByLoginId(username)
+                .orElseThrow(() -> new NoSuchElementException("Not found Member"));
+        member.update(update.getProfileImage());
+
+        if(username.equals(member.getLoginId())){
+            return new MemberDTO.Response(memberRepository.save(member));
+        } else {
+            throw new IllegalArgumentException("Unauthorized update request");
+        }
     }
 
     /* 회원가입 시, 유효성 체크 */

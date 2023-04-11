@@ -48,6 +48,17 @@ public class MemberDTO {
         private String loginId;
     }
 
+    @Schema(name = "MemberDTO.Update (회원 정보 수정 DTO)")
+    @Getter
+    @Setter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class Update {
+        @Schema(description = "Profile Image (프로필 사진)", defaultValue = "")
+        private String profileImage;
+    }
+
     @Schema(name = "MemberDTO.Response (회원 정보 반환 DTO")
     @Getter
     @JsonInclude(JsonInclude.Include.NON_NULL)
