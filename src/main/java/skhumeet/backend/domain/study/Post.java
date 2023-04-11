@@ -35,7 +35,7 @@ public class Post extends BaseTime {
 
     //상태
     @Enumerated(EnumType.STRING)
-    private Situation situation;
+    private Status status;
 
     //연락 방법
     @Enumerated(EnumType.STRING)

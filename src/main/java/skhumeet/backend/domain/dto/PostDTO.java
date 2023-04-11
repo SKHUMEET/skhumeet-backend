@@ -21,17 +21,16 @@ public class PostDTO {
     @AllArgsConstructor
     @Schema(name = "PostDTO.Request")
     public static class Request {
-
         @Schema(description = "Title", defaultValue = "Test Title")
         private String title;
-        @Schema(description = "Category", defaultValue = "programming")
+        @Schema(description = "Category", defaultValue = "Hansotbab")
         private String category;
-        @Schema(description = "Contact", defaultValue = "KakaoOpenChat")
+        @Schema(description = "Contact", defaultValue = "Kakao OpenChat")
         private String contact;
-        @Schema(description = "EndDate", defaultValue = "2023-03-31")
+        @Schema(description = "End Date", defaultValue = "2023-03-31")
         @DateTimeFormat(pattern = "yyyy-MM-dd")
         private LocalDateTime endDate;
-        @Schema(description = "View", defaultValue = "1")
+        @Schema(description = "View count", defaultValue = "1")
         private Long view;
         @Schema(description = "Context", defaultValue = "Test Context")
         private String context;
