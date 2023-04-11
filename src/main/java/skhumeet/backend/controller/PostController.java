@@ -26,7 +26,10 @@ public class PostController {
     private final PostService postService;
 
     //Create
-    @Operation(summary = "create post", description = "Create post")
+    @Operation(
+            summary = "create post",
+            description = "Create post. Category List : HANSOTBAB, EOULLIM, STUDY, CLUB, CONTEST, DEPARTMENT_EVENT, ETC"
+    )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "400", description = "Bad Request")
@@ -101,7 +104,7 @@ public class PostController {
     }
 
     //Update
-    @Operation(summary = "Update main post", description = "Update main post")
+    @Operation(summary = "Update main post", description = "Update main post. Status List : ")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "400", description = "Bad Request")

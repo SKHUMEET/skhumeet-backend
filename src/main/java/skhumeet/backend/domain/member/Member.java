@@ -41,8 +41,7 @@ public class Member {
     @Column(name = "profile_image")
     private String profileImage;
 
-    public Member update(String name, String profileImage) {
-        this.name = name;
+    public Member update(String profileImage) {
         this.profileImage = profileImage;
         return this;
     }
