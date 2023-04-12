@@ -31,7 +31,7 @@ public class PostDTO {
         @DateTimeFormat(pattern = "yyyy-MM-dd")
         private LocalDateTime endDate;
         @Schema(description = "View count", defaultValue = "1")
-        private Long view;
+        private int view;
         @Schema(description = "Context", defaultValue = "Test Context")
         private String context;
         @Schema(description = "Input paths that returned by Image API", defaultValue = "")
@@ -48,16 +48,18 @@ public class PostDTO {
         private String category;
         @Schema(description = "Title")
         private String title;
-        @Schema(description = "Nickname")
-        private String nickname;
+        @Schema(description = "MemberName")
+        private String name;
+        @Schema(description = "MemberNumber")
+        private String memberNumber;
         @Schema(description = "EndDate")
         private LocalDateTime endDate;
         @Schema(description = "Created Date")
         private LocalDateTime createDate;
         @Schema(description = "Contact")
         private String contact;
-        @Schema(description = "View")
-        private Long view;
+        @Schema(description = "View", defaultValue = "0")
+        private int view;
         @Schema(description = "Context")
         private String context;
         @Schema(description = "Image files", defaultValue = "")
@@ -69,10 +71,11 @@ public class PostDTO {
             this.id = post.getId();
             this.category = post.getCategory().toString();
             this.title = post.getTitle();
-            this.nickname = post.getAuthor().getNickname();
+            this.name = post.getAuthor().getName();
+            this.memberNumber = post.getAuthor().getMemberNumber();
             this.endDate = post.getEndDate();
             this.createDate = post.getCreatedDate();
-            this.contact = post.getContact().toString();
+            this.contact = post.getContact();
             this.view = post.getView();
             this.context = post.getContext();
             this.images = new ArrayList<>();
