@@ -161,7 +161,7 @@ public class TokenProvider {
     // 토큰 재발급
     public TokenDTO reissue(String refreshToken) {
         Claims claims = parseClaims(refreshToken);
-        String username = claims.get("username").toString();
+        String username = claims.get("id").toString();
         RefreshToken redisRefreshToken = refreshTokenRedisRepository.findById(username)
                 .orElseThrow(NoSuchElementException::new);
 
@@ -173,7 +173,7 @@ public class TokenProvider {
 
     private TokenDTO reissueToken(String refreshToken) {
         Claims claims = parseClaims(refreshToken);
-        String username = claims.get("username").toString();
+        String username = claims.get("id").toString();
         if (lessThanReissueExpirationTimesLeft(refreshToken)) {
             String accessToken = generateAccessToken(username);
             return TokenDTO.builder()
