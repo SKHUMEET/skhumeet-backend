@@ -1,6 +1,10 @@
 package skhumeet.backend.token;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
@@ -20,20 +24,32 @@ public class JwtFilter extends GenericFilterBean {
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        String token = tokenProvider.resolveToken((HttpServletRequest) request); // request header에서 jwt 토큰 추출
-        if(token != null) {
-            checkLogout(token);
-        }
-        if (StringUtils.hasText(token) && tokenProvider.validateToken(token)) {
-            Authentication authentication = tokenProvider.getAuthentication(token);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+        try {
+            String token = tokenProvider.resolveToken((HttpServletRequest) request); // request header에서 JWT 추출
+            if(token != null) {
+                checkLogout(token);
+            }
+            if (StringUtils.hasText(token) && tokenProvider.validateToken(token)) {
+                Authentication authentication = tokenProvider.getAuthentication(token);
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            }
+        } catch(JwtException jwtException) {
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            ResponseEntity<String> responseEntity = ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(jwtException.getMessage());
+            try {
+                String json = new ObjectMapper().writeValueAsString(responseEntity);
+                response.getWriter().write(json);
+            } catch (Exception exception) {
+                logger.error(exception.getMessage());
+            }
         }
         chain.doFilter(request, response);
     }
 
     private void checkLogout(String token) {
         if (logoutAccessTokenRedisRepository.existsById(token)) {
-            throw new IllegalArgumentException("이미 로그아웃된 회원입니다.");
+            throw new IllegalArgumentException("Already logged out User");
         }
     }
 }

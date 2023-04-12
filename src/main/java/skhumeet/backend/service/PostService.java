@@ -12,16 +12,19 @@ import skhumeet.backend.domain.dto.ImageDTO;
 import skhumeet.backend.domain.dto.PostDTO;
 import skhumeet.backend.domain.member.Member;
 import skhumeet.backend.domain.study.Category;
-import skhumeet.backend.domain.study.Contact;
 import skhumeet.backend.domain.study.Post;
 import skhumeet.backend.repository.MemberRepository;
 import skhumeet.backend.repository.post.PostRepository;
 
 import javax.persistence.EntityManager;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -40,7 +43,7 @@ public class PostService {
                         .orElseThrow(() -> new NoSuchElementException("Member not found")))
                 .category(Category.valueOf(request.getCategory().toUpperCase()))
                 .endDate(request.getEndDate())
-                .contact(Contact.valueOf(request.getContact().toUpperCase()))
+                .contact(request.getContact())
                 .view(request.getView())
                 .context(request.getContext())
                 .images(new ArrayList<>())
@@ -53,7 +56,7 @@ public class PostService {
     @Transactional(readOnly = true)
     public Page<PostDTO.Response> findAll(Pageable pageable) {
         return postRepository.findAll(pageable).map(post -> {
-            if(post.getImages() != null) {
+            if (post.getImages() != null) {
                 post.getImages().replaceAll(
                         storedImageName -> imageService.findByStoredImageName(storedImageName).getImagePath()
                 );
@@ -65,7 +68,7 @@ public class PostService {
     @Transactional(readOnly = true)
     public PostDTO.Response findById(Long id) {
         return new PostDTO.Response(postRepository.findById(id).map(post -> {
-            if(post.getImages() != null) {
+            if (post.getImages() != null) {
                 post.getImages().replaceAll(
                         storedImageName -> imageService.findByStoredImageName(storedImageName).getImagePath()
                 );
@@ -79,7 +82,7 @@ public class PostService {
         Member member = memberRepository.findByLoginId(username) //id로 user 찾기
                 .orElseThrow(() -> new NoSuchElementException("Member not found"));
         return postRepository.findByAuthor(pageable, member).map(post -> {
-            if(post.getImages() != null) {
+            if (post.getImages() != null) {
                 post.getImages().replaceAll(
                         storedImageName -> imageService.findByStoredImageName(storedImageName).getImagePath()
                 );
@@ -92,7 +95,7 @@ public class PostService {
     public Page<PostDTO.Response> findByCategory(Pageable pageable, String category) {
         return postRepository.findByCategory(pageable, Category.valueOf(category.toUpperCase()))
                 .map(post -> {
-                    if(post.getImages() != null) {
+                    if (post.getImages() != null) {
                         post.getImages().replaceAll(
                                 storedImageName -> imageService.findByStoredImageName(storedImageName).getImagePath()
                         );
@@ -104,7 +107,7 @@ public class PostService {
     @Transactional(readOnly = true)
     public Page<PostDTO.Response> findByKeyword(Pageable pageable, String keyword) {
         return postRepository.findByKeyword(pageable, keyword).map(post -> {
-            if(post.getImages() != null) {
+            if (post.getImages() != null) {
                 post.getImages().replaceAll(
                         storedImageName -> imageService.findByStoredImageName(storedImageName).getImagePath()
                 );
@@ -118,14 +121,14 @@ public class PostService {
         Post oldPost = postRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("There is no Post with this ID"));
         Post newPost;
-        if(username.equals(oldPost.getAuthor().getLoginId())) {
+        if (username.equals(oldPost.getAuthor().getLoginId())) {
             newPost = Post.builder()
                     .id(id)
                     .title(update.getTitle())
                     .author(oldPost.getAuthor())
                     .category(Category.valueOf(update.getCategory().toUpperCase()))
                     .endDate(update.getEndDate())
-                    .contact(Contact.valueOf(update.getContact().toUpperCase()))
+                    .contact(update.getContact())
                     .context(update.getContext())
                     .images(new ArrayList<>())
                     .build();
@@ -142,8 +145,8 @@ public class PostService {
         try {
             Post post = postRepository.findById(id)
                     .orElseThrow(() -> new NoSuchElementException("Main post not found"));
-            if(post.getImages() != null) {
-                for(String imageName : post.getImages()) {
+            if (post.getImages() != null) {
+                for (String imageName : post.getImages()) {
                     ImageDTO.Response image = imageService.findByStoredImageName(imageName);
                     imageService.deleteImage("main/", image.getImagePath());
                 }
@@ -158,7 +161,7 @@ public class PostService {
 
     // Util
     private void saveWithImage(Post post, List<String> images) {
-        if(images != null) {
+        if (images != null) {
             for (String imagePath : images) {
                 ImageDTO.Response image = imageService.findByImagePath(imagePath);
                 post.getImages().add(image.getStoredImageName());
@@ -166,8 +169,36 @@ public class PostService {
         }
         postRepository.saveAndFlush(post);
         entityManager.detach(post);
-        if(post.getImages() != null) {
+        if (post.getImages() != null) {
             post.getImages().replaceAll(storedImageName -> imageService.findByStoredImageName(storedImageName).getImagePath());
         }
     }
+
+//    public ResponseEntity<Void> increaseViewCount(Long id, HttpServletResponse response, HttpServletRequest request) {
+//        Optional<Post> post = postRepository.findById(id);
+//        if (post.isPresent()) {
+//            Post targetPost = post.get();
+//            String cookieValue = getCookieValue(request.getCookies(), "post_" + id);
+//            if (cookieValue == null) {
+//                targetPost.increaseViews();
+//                postRepository.save(targetPost);
+//                response.addCookie(new Cookie("post_" + id, "viewed"));
+//                return ResponseEntity.ok().build();
+//            }
+//        }
+//        return ResponseEntity.notFound().build();
+//    }
+//
+//    // 쿠키 값 추출
+//    private String getCookieValue(Cookie[] cookies, String cookieName) {
+//        if (cookies == null) {
+//            return null;
+//        }
+//        for (Cookie cookie : cookies) {
+//            if (cookie.getName().equals(cookieName)) {
+//                return cookie.getValue();
+//            }
+//        }
+//        return null;
+//    }
 }

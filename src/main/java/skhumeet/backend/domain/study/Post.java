@@ -38,8 +38,8 @@ public class Post extends BaseTime {
     private Status status;
 
     //연락 방법
-    @Enumerated(EnumType.STRING)
-    private Contact contact;
+    @Column(name = "contact", nullable = false)
+    private String contact;
 
     //마감일
     @Column(name="endDate")
@@ -47,7 +47,7 @@ public class Post extends BaseTime {
 
     //조회수
     @Column(name="view")
-    private Long view;
+    private int view;
 
     //제목
     @Column(name = "title")
@@ -63,4 +63,8 @@ public class Post extends BaseTime {
     @Convert(converter = StringListConverter.class)
     private List<String> images;
 
+
+    public void increaseViews() {
+        this.view++;
+    }
 }

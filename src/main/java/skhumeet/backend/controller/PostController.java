@@ -16,19 +16,29 @@ import org.springframework.web.bind.annotation.*;
 import skhumeet.backend.domain.dto.PostDTO;
 import skhumeet.backend.service.PostService;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-@Tag(name = "MainPost", description = "API for main post")
+@Tag(name = "Post API (게시글 관련 API)", description = "API for Post CRUD (게시글 CRUD를 위한 API)")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/main")
 public class PostController {
     private final PostService postService;
 
-    //Create
+    // Create (게시글 작성)
     @Operation(
-            summary = "create post",
-            description = "Create post. Category List : HANSOTBAB, EOULLIM, STUDY, CLUB, CONTEST, DEPARTMENT_EVENT, ETC"
+            summary = "Create Post API (게시글 작성 API)",
+            description = """
+                    Create Post. Authorize needed.<br/>
+                    게시글 작성. 로그인(토큰) 필요.
+                    
+                    Category List : HANSOTBAB, EOULLIM, STUDY, CLUB, CONTEST, DEPARTMENT_EVENT, ETC<br/>
+                    카테고리 목록 : 한솥밥, 어울림, 스터디, 동아리, 경진대회, 학부 행사, 기타
+                    
+                    카테고리 목록의 카테고리 값들은 <strong>대소문자를 구분하지 않음<strong>.
+                    """
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "OK"),
@@ -40,9 +50,15 @@ public class PostController {
         return ResponseEntity.ok(postService.save(userDetails.getUsername(), request));
     }
 
-    //Read
-    // id별 post 불러오기
-    @Operation(summary = "find main post by id", description = "Read main post from database by id")
+    // Read (게시글 조회)
+    // ID 기준 Post 조회
+    @Operation(
+            summary = "Read Post by ID API (ID 기준 게시글 조회 API)",
+            description = """
+                    Read main post from database by id. Authorize needed.<br/>
+                    데이터베이스에서 ID 값을 통해 게시글 단건 조회. 로그인(토큰) 필요.
+                    """
+    )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "400", description = "Bad Request")
@@ -52,8 +68,14 @@ public class PostController {
         return ResponseEntity.ok(postService.findById(id));
     }
 
-    //해당 유저의 post 불러오기
-    @Operation(summary = "find main post by current member", description = "Read main post from database by current member")
+    // Member가 작성한 Post 조회
+    @Operation(
+            summary = "Read Post by Member API (Member 기준 게시글 조회 API)",
+            description = """
+                    Read posts from database by current member. Authorize needed.<br/>
+                    데이터베이스에서 현재 로그인 된 Member가 작성한 게시글 목록 조회.
+                    """
+    )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "400", description = "Bad Request")
@@ -65,8 +87,25 @@ public class PostController {
         return postService.findByMember(pageable, userDetails.getUsername());
     }
 
-    //카테고리별 조회
-    @Operation(summary = "find main post by category", description = "Read main posts from database by category")
+//    // postid로 view 증가
+//    @Operation(summary = "View Increase", description = "View increments each time a post is viewed")
+//    @ApiResponses({
+//            @ApiResponse(responseCode = "200", description = "OK"),
+//            @ApiResponse(responseCode = "400", description = "Bad Request")
+//    })
+//    @PatchMapping("/{id}/view")
+//    public ResponseEntity<Void> increaseViewCount(@PathVariable Long id, HttpServletResponse response, HttpServletRequest request) {
+//        return postService.increaseViewCount(id, response, request);
+//    }
+
+    // 카테고리별 조회
+    @Operation(
+            summary = "Read Post by Category API (Category 기준 게시글 조회 API)",
+            description = """
+                    Read posts from database by category. Authorize needed.<br/>
+                    데이터베이스에서 카테고리 기준 게시글 목록 조회. 로그인(토큰) 필요.
+                    """
+    )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "400", description = "Bad Request")
@@ -78,8 +117,14 @@ public class PostController {
         return postService.findByCategory(pageable, category);
     }
 
-    //키워드 검색
-    @Operation(summary = "find main post by keyword", description = "Read main posts from database by keyword in title or context")
+    // 키워드 검색
+    @Operation(
+            summary = "Find Post by Keyword API (Keyword 기준 게시글 조회 API)",
+            description = """
+                    Read posts from database by keyword in title or context. Authorize needed.<br/>
+                    데이터베이스에서 제목과 내용의 키워드 기준 게시글 목록 조회. 로그인(토큰) 필요.
+                    """
+    )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "400", description = "Bad Request")
@@ -91,8 +136,14 @@ public class PostController {
         return postService.findByKeyword(pageable, keyword);
     }
 
-    //모든 post 조회
-    @Operation(summary = "find main posts", description = "Read main posts from database")
+    // 모든 Post 조회
+    @Operation(
+            summary = "Read all Posts API (모든 게시글 조회 API)",
+            description = """
+                    Read all posts from database. Authorize needed.<br/>
+                    데이터베이스에서 모든 게시글 목록 조회. 로그인(토큰) 필요.
+                    """
+    )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "400", description = "Bad Request")
@@ -103,8 +154,19 @@ public class PostController {
         return postService.findAll(pageable);
     }
 
-    //Update
-    @Operation(summary = "Update main post", description = "Update main post. Status List : ")
+    // Update (게시글 수정)
+    @Operation(
+            summary = "Update Post API (게시글 수정 API)",
+            description = """
+                    Update post. Authorize needed.<br/>
+                    게시글 수정. 로그인(토큰) 필요.
+                    
+                    Status List : RECRUITING, RECRUITMENT_DEADLINE, PROMOTION, ACTIVITY<br/>
+                    게시글 상태 목록 : 모집 중, 모집 완료, 홍보, 활동
+                    
+                    게시글 상태 목록의 상태값들은 <strong>대소문자를 구분하지 않음</strong>.
+                    """
+    )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "400", description = "Bad Request")
@@ -116,8 +178,14 @@ public class PostController {
         return ResponseEntity.ok(postService.update(userDetails.getUsername(), update, id));
     }
 
-    //Delete
-    @Operation(summary = "Delete main post", description = "Delete main post")
+    // Delete (게시글 삭제)
+    @Operation(
+            summary = "Delete Post API (게시글 삭제 API)",
+            description = """
+                    Delete post by Post ID. Authorize needed.<br/>
+                    게시글의 ID 값을 기준으로 게시글 삭제 요청. 로그인(토큰) 필요.
+                    """
+    )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "400", description = "Bad Request")

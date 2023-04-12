@@ -17,15 +17,21 @@ import skhumeet.backend.service.CommentService;
 
 import java.util.List;
 
-@Tag(name = "Comment", description = "API for comment")
+@Tag(name = "Comment API (댓글 관련 API)", description = "API for Comment CRUD (댓글 CRUD를 위한 API)")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/comment")
 public class CommentController {
     private final CommentService commentService;
 
-    //Create
-    @Operation(summary = "create comment", description = "Create comment")
+    // Create (댓글 작성)
+    @Operation(
+            summary = "Create Comment API (댓글 작성 API)",
+            description = """
+                    Create comment. Authorize needed.<br/>
+                    댓글 작성. 로그인(토큰) 필요.
+                    """
+    )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "400", description = "Bad Request")
@@ -36,8 +42,14 @@ public class CommentController {
         return ResponseEntity.ok(commentService.save(userDetails.getUsername(), request));
     }
 
-    //대댓글
-    @Operation(summary = "reply comment", description = "Create reply comment")
+    // 대댓글
+    @Operation(
+            summary = "Create Reply (대댓글 작성 API)",
+            description = """
+                    Create reply comment. Authorize needed.<br/>
+                    대댓글 작성. 로그인(토큰) 필요.
+                    """
+    )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "400", description = "Bad Request")
@@ -48,8 +60,14 @@ public class CommentController {
         return ResponseEntity.ok(commentService.reply(userDetails.getUsername(), reply));
     }
 
-    //Read
-    @Operation(summary = "get comments by board post id", description = "Read comments by board post id")
+    // Read (댓글 조회)
+    @Operation(
+            summary = "Read Comments API (댓글 목록 조회 API)",
+            description = """
+                    Read comments by post ID. Authorize needed.<br/>
+                    게시글 ID 값을 기준으로 댓글 목록을 조회. 로그인(토큰) 필요.
+                    """
+    )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "400", description = "Bad Request")
@@ -61,8 +79,14 @@ public class CommentController {
         return commentService.findByPost(pageable, postId);
     }
 
-    //Update
-    @Operation(summary = "Update comment", description = "Update comment")
+    // Update (댓글 수정)
+    @Operation(
+            summary = "Update Comment API (댓글 수정 API)",
+            description = """
+                    Update comment by post ID and comment ID. Authorize needed.<br/>
+                    게시글 ID와 댓글 ID를 기준으로 댓글 수정. 로그인(토큰) 필요.
+                    """
+    )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "400", description = "Bad Request")
@@ -75,8 +99,14 @@ public class CommentController {
         return ResponseEntity.ok(commentService.update(userDetails.getUsername(), update, postId, id));
     }
 
-    //Delete
-    @Operation(summary = "Delete comment", description = "Delete comment")
+    // Delete (댓글 삭제)
+    @Operation(
+            summary = "Delete Comment API (댓글 삭제 API)",
+            description = """
+                    Delete comment by comment ID. Authorize needed.<br/>
+                    댓글 ID 기준으로 댓글 삭제. 로그인(토큰) 필요.
+                    """
+    )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "400", description = "Bad Request")
