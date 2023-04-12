@@ -1,6 +1,5 @@
 package skhumeet.backend.oauth2;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -8,8 +7,6 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationSu
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 import skhumeet.backend.domain.dto.TokenDTO;
-import skhumeet.backend.domain.dto.MemberDTO;
-import skhumeet.backend.repository.MemberRepository;
 import skhumeet.backend.token.TokenProvider;
 
 import javax.servlet.ServletException;

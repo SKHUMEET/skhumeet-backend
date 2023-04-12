@@ -1,8 +1,5 @@
 package skhumeet.backend.token;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthException;
-import com.google.firebase.auth.FirebaseToken;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -19,7 +16,6 @@ import org.springframework.util.StringUtils;
 import skhumeet.backend.domain.dto.TokenDTO;
 import skhumeet.backend.repository.MemberRepository;
 
-import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import java.security.Key;
 import java.util.Arrays;

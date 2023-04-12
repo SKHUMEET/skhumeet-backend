@@ -1,6 +1,5 @@
 package skhumeet.backend.controller;
 
-
 import io.jsonwebtoken.JwtException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
