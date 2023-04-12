@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.*;
 import skhumeet.backend.domain.dto.PostDTO;
 import skhumeet.backend.service.PostService;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @Tag(name = "MainPost", description = "API for main post")
@@ -64,6 +66,19 @@ public class PostController {
         Pageable pageable = PageRequest.of(pageNumber == 0 ? 0 : pageNumber-1, 9, Sort.by("id").descending());
         return postService.findByMember(pageable, userDetails.getUsername());
     }
+
+//    //postid로 view 증가
+//    @Operation(summary = "View Increase", description = "View increments each time a post is viewed")
+//    @ApiResponses({
+//            @ApiResponse(responseCode = "200", description = "OK"),
+//            @ApiResponse(responseCode = "400", description = "Bad Request")
+//    })
+//    @PatchMapping("/{id}/view")
+//    public ResponseEntity<Void> increaseViewCount(@PathVariable Long id, HttpServletResponse response, HttpServletRequest request) {
+//        return postService.increaseViewCount(id, response, request);
+//    }
+
+
 
     //카테고리별 조회
     @Operation(summary = "find main post by category", description = "Read main posts from database by category")
