@@ -13,65 +13,63 @@ import java.util.Date;
 import java.util.List;
 
 public class PostDTO {
-
+    @Schema(name = "PostDTO.Request (게시글 작성 요청 DTO)")
     @Getter
     @Setter
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    @Schema(name = "PostDTO.Request")
     public static class Request {
-        @Schema(description = "Title", defaultValue = "Test Title")
+        @Schema(description = "Title (제목)", defaultValue = "Test Title")
         private String title;
-        @Schema(description = "Category", defaultValue = "Hansotbab")
+        @Schema(description = "Category (카테고리)", defaultValue = "Hansotbab")
         private String category;
-        @Schema(description = "Contact", defaultValue = "Kakao OpenChat")
+        @Schema(description = "Contact (연락처)", defaultValue = "Kakao OpenChat")
         private String contact;
-        @Schema(description = "End Date", defaultValue = "2023-03-31")
+        @Schema(description = "End Date (기한)", defaultValue = "2023-03-31")
         @DateTimeFormat(pattern = "yyyy-MM-dd")
         private LocalDateTime endDate;
-        @Schema(description = "View count", defaultValue = "1")
+        @Schema(description = "View count (조회수)", defaultValue = "1")
         private int view;
-        @Schema(description = "Context", defaultValue = "Test Context")
+        @Schema(description = "Context (내용)", defaultValue = "Test Context")
         private String context;
         @Schema(description = "Input paths that returned by Image API", defaultValue = "")
         private List<String> images;
     }
 
+    @Schema(name = "PostDTO.Response (게시글 API 응답 DTO)")
     @Getter
-    @Schema(name = "PostDTO.Response")
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class Response {
-        @Schema(description = "ID")
+        @Schema(description = "ID (게시글 ID)")
         private Long id;
-        @Schema(description = "Category")
+        @Schema(description = "Category (카테고리)")
         private String category;
-        @Schema(description = "Title")
+        @Schema(description = "Title (제목)")
         private String title;
-        @Schema(description = "MemberName")
-        private String name;
-        @Schema(description = "MemberNumber")
+        @Schema(description = "Member (작성자)")
+        private String member;
+        @Schema(description = "MemberNumber (학번 또는 교번)")
         private String memberNumber;
-        @Schema(description = "EndDate")
+        @Schema(description = "EndDate (기한)")
         private LocalDateTime endDate;
-        @Schema(description = "Created Date")
+        @Schema(description = "Created Date (작성일)")
         private LocalDateTime createDate;
-        @Schema(description = "Contact")
+        @Schema(description = "Contact (연락처)")
         private String contact;
-        @Schema(description = "View", defaultValue = "0")
+        @Schema(description = "View (조회수)", defaultValue = "0")
         private int view;
-        @Schema(description = "Context")
+        @Schema(description = "Context (내용)")
         private String context;
-        @Schema(description = "Image files", defaultValue = "")
+        @Schema(description = "Image files (이미지 목록)", defaultValue = "")
         private List<String> images;
-
 
         @QueryProjection
         public Response(Post post) {
             this.id = post.getId();
             this.category = post.getCategory().toString();
             this.title = post.getTitle();
-            this.name = post.getAuthor().getName();
+            this.member = post.getAuthor().getName();
             this.memberNumber = post.getAuthor().getMemberNumber();
             this.endDate = post.getEndDate();
             this.createDate = post.getCreatedDate();
@@ -85,24 +83,24 @@ public class PostDTO {
         }
     }
 
+    @Schema(name = "PostDTO.Update (게시글 수정 요청 DTO)")
     @Getter
     @Setter
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    @Schema(name = "PostDTO.Update")
     public static class Update {
-        @Schema(description = "Title", defaultValue = "Modified Title")
+        @Schema(description = "Title (제목)", defaultValue = "Modified Title")
         private String title;
-        @Schema(description = "Category", defaultValue = "Eoullim")
+        @Schema(description = "Category (카테고리)", defaultValue = "Eoullim")
         private String category;
-        @Schema(description = "Contact", defaultValue = "Google Form")
+        @Schema(description = "Contact (연락처)", defaultValue = "Google Form")
         private String contact;
-        @Schema(description = "EndDate", defaultValue = "2023-04-13")
+        @Schema(description = "EndDate (기한)", defaultValue = "2023-04-13")
         private LocalDateTime endDate;
-        @Schema(description = "Context", defaultValue = "Modified Context")
+        @Schema(description = "Context (내용)", defaultValue = "Modified Context")
         private String context;
-        @Schema(description = "Image files", defaultValue = "")
+        @Schema(description = "Image files (이미지 목록)", defaultValue = "")
         private List<String> images;
     }
 }
