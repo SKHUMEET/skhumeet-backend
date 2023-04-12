@@ -8,7 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AuthorizationServiceException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import skhumeet.backend.domain.dto.HttpResponseDTO;
 import skhumeet.backend.domain.dto.ImageDTO;
 import skhumeet.backend.domain.dto.PostDTO;
 import skhumeet.backend.domain.member.Member;
@@ -26,7 +25,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor

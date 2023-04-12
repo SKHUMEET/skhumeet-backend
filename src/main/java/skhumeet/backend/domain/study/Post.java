@@ -63,7 +63,6 @@ public class Post extends BaseTime {
     @Convert(converter = StringListConverter.class)
     private List<String> images;
 
-
     public void updateViews() {
         this.view++;
     }

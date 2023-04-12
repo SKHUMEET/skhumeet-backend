@@ -7,7 +7,6 @@ import skhumeet.backend.domain.member.Member;
 import javax.persistence.*;
 
 //post로 스크랩 추가, delete로 스크랩 삭제
-
 @Entity
 @Getter
 @Builder
