@@ -72,6 +72,14 @@ public class TokenProvider {
         return null;
     }
 
+    public String resolveToken(String token) {
+        return token.substring(7);
+    }
+
+    public String getUsername(String token) {
+        return parseClaims(token).get("username", String.class);
+    }
+
     public Authentication getAuthentication(String accessToken) {
         Claims claims = parseClaims(accessToken);
 
@@ -148,5 +156,44 @@ public class TokenProvider {
                 .setExpiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRATION_TIME.getValue()))
                 .signWith(key)
                 .compact();
+    }
+
+    // 토큰 재발급
+    public TokenDTO reissue(String refreshToken) {
+        Claims claims = parseClaims(refreshToken);
+        String username = claims.get("username").toString();
+        RefreshToken redisRefreshToken = refreshTokenRedisRepository.findById(username)
+                .orElseThrow(NoSuchElementException::new);
+
+        if (refreshToken.equals(redisRefreshToken.getRefreshToken())) {
+            return reissueToken(refreshToken);
+        }
+        throw new IllegalArgumentException("토큰이 일치하지 않습니다.");
+    }
+
+    private TokenDTO reissueToken(String refreshToken) {
+        Claims claims = parseClaims(refreshToken);
+        String username = claims.get("username").toString();
+        if (lessThanReissueExpirationTimesLeft(refreshToken)) {
+            String accessToken = generateAccessToken(username);
+            return TokenDTO.builder()
+                    .accessToken(accessToken)
+                    .refreshToken(saveRefreshToken(username).getRefreshToken())
+                    .build();
+        }
+        return TokenDTO.builder()
+                .accessToken(generateAccessToken(username))
+                .refreshToken(refreshToken)
+                .build();
+    }
+
+    private boolean lessThanReissueExpirationTimesLeft(String refreshToken) {
+        return getRemainMilliSeconds(refreshToken) < JwtExpirationEnums.REISSUE_EXPIRATION_TIME.getValue();
+    }
+
+    public long getRemainMilliSeconds(String token) {
+        Date expiration = parseClaims(token).getExpiration();
+        Date now = new Date();
+        return expiration.getTime() - now.getTime();
     }
 }

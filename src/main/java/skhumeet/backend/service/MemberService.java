@@ -1,6 +1,7 @@
 package skhumeet.backend.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -8,11 +9,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
+import skhumeet.backend.config.cache.CacheKey;
 import skhumeet.backend.domain.dto.HttpResponseDTO;
 import skhumeet.backend.domain.dto.MemberDTO;
 import skhumeet.backend.domain.dto.TokenDTO;
 import skhumeet.backend.domain.member.*;
 import skhumeet.backend.repository.MemberRepository;
+import skhumeet.backend.token.LogoutAccessToken;
+import skhumeet.backend.token.LogoutAccessTokenRedisRepository;
+import skhumeet.backend.token.RefreshTokenRedisRepository;
 import skhumeet.backend.token.TokenProvider;
 
 import javax.validation.Valid;
@@ -25,6 +30,24 @@ public class MemberService {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final MemberRepository memberRepository;
     private final TokenProvider tokenProvider;
+    private final RefreshTokenRedisRepository refreshTokenRedisRepository;
+    private final LogoutAccessTokenRedisRepository logoutAccessTokenRedisRepository;
+
+    @Transactional
+    public ResponseEntity<HttpResponseDTO> join(MemberDTO.@Valid Join request) {
+        if (memberRepository.findByLoginId(request.getLoginId()).isPresent()) {
+            throw new IllegalArgumentException("Duplicated ID that provided from OAuth 2.0 API");
+        }
+        if (memberRepository.findByMemberNumber(request.getMemberNumber()).isPresent()) {
+            throw new IllegalArgumentException("Duplicated ID of SKHU, please check your ID");
+        }
+
+        Member member = memberRepository.saveAndFlush(request.toEntity());
+        MemberDTO.Response memberInfo = new MemberDTO.Response(member);
+        TokenDTO tokens = tokenProvider.createTokens(request.getLoginId());
+
+        return ResponseEntity.ok(new HttpResponseDTO("Join success", tokens, memberInfo));
+    }
 
     @Transactional
     public ResponseEntity<HttpResponseDTO> login(MemberDTO.@Valid Login request) {
@@ -42,20 +65,13 @@ public class MemberService {
         return ResponseEntity.ok(new HttpResponseDTO("Login success", tokens, memberInfo));
     }
 
-    @Transactional
-    public ResponseEntity<HttpResponseDTO> join(MemberDTO.@Valid Join request) {
-        if (memberRepository.findByLoginId(request.getLoginId()).isPresent()) {
-            throw new IllegalArgumentException("Duplicated ID that provided from OAuth 2.0 API");
-        }
-        if (memberRepository.findByMemberNumber(request.getMemberNumber()).isPresent()) {
-            throw new IllegalArgumentException("Duplicated ID of SKHU, please check your ID");
-        }
-
-        Member member = memberRepository.saveAndFlush(request.toEntity());
-        MemberDTO.Response memberInfo = new MemberDTO.Response(member);
-        TokenDTO tokens = tokenProvider.createTokens(request.getLoginId());
-
-        return ResponseEntity.ok(new HttpResponseDTO("Join success", tokens, memberInfo));
+    @CacheEvict(value = CacheKey.USER, key = "#username")
+    public ResponseEntity<String> logout(TokenDTO tokenDto, String username) {
+        String accessToken = tokenProvider.resolveToken(tokenDto.getAccessToken());
+        long remainMilliSeconds = tokenProvider.getRemainMilliSeconds(accessToken);
+        refreshTokenRedisRepository.deleteById(username);
+        logoutAccessTokenRedisRepository.save(LogoutAccessToken.of(accessToken, username, remainMilliSeconds));
+        return ResponseEntity.ok("Logout success");
     }
 
     //Update
@@ -83,5 +99,11 @@ public class MemberService {
             validatorResult.put(validKeyName, error.getDefaultMessage());
         }
         return validatorResult;
+    }
+
+    public MemberDTO.Response findByLoginId(String loginId) {
+        Member member = memberRepository.findByLoginId(loginId)
+                .orElseThrow(() -> new NoSuchElementException("Member not found"));
+        return new MemberDTO.Response(member);
     }
 }
