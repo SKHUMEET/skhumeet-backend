@@ -8,11 +8,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AuthorizationServiceException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import skhumeet.backend.domain.dto.HttpResponseDTO;
 import skhumeet.backend.domain.dto.ImageDTO;
 import skhumeet.backend.domain.dto.PostDTO;
 import skhumeet.backend.domain.member.Member;
 import skhumeet.backend.domain.study.Category;
 import skhumeet.backend.domain.study.Post;
+import skhumeet.backend.domain.study.Status;
 import skhumeet.backend.repository.MemberRepository;
 import skhumeet.backend.repository.post.PostRepository;
 
@@ -42,6 +44,7 @@ public class PostService {
                 .author(memberRepository.findByLoginId(username)
                         .orElseThrow(() -> new NoSuchElementException("Member not found")))
                 .category(Category.valueOf(request.getCategory().toUpperCase()))
+                .status(Status.valueOf(request.getStatus().toUpperCase()))
                 .endDate(request.getEndDate())
                 .contact(request.getContact())
                 .view(request.getView())
@@ -65,14 +68,15 @@ public class PostService {
         }).map(PostDTO.Response::new);
     }
 
-    @Transactional(readOnly = true)
-    public PostDTO.Response findById(Long id) {
+    @Transactional
+    public PostDTO.Response findById(Long id, HttpServletRequest request, HttpServletResponse response) {
         return new PostDTO.Response(postRepository.findById(id).map(post -> {
             if (post.getImages() != null) {
                 post.getImages().replaceAll(
                         storedImageName -> imageService.findByStoredImageName(storedImageName).getImagePath()
                 );
             }
+            countViews(post, request, response);
             return post;
         }).orElseThrow(() -> new NoSuchElementException("There is no Post with this ID")));
     }
@@ -174,31 +178,38 @@ public class PostService {
         }
     }
 
-//    public ResponseEntity<Void> increaseViewCount(Long id, HttpServletResponse response, HttpServletRequest request) {
-//        Optional<Post> post = postRepository.findById(id);
-//        if (post.isPresent()) {
-//            Post targetPost = post.get();
-//            String cookieValue = getCookieValue(request.getCookies(), "post_" + id);
-//            if (cookieValue == null) {
-//                targetPost.increaseViews();
-//                postRepository.save(targetPost);
-//                response.addCookie(new Cookie("post_" + id, "viewed"));
-//                return ResponseEntity.ok().build();
-//            }
-//        }
-//        return ResponseEntity.notFound().build();
-//    }
-//
-//    // 쿠키 값 추출
-//    private String getCookieValue(Cookie[] cookies, String cookieName) {
-//        if (cookies == null) {
-//            return null;
-//        }
-//        for (Cookie cookie : cookies) {
-//            if (cookie.getName().equals(cookieName)) {
-//                return cookie.getValue();
-//            }
-//        }
-//        return null;
-//    }
+    // 게시글 조회수 연산
+    private void countViews(Post post, HttpServletRequest request, HttpServletResponse response) {
+        Cookie cookie = null;
+        Cookie[] cookies = request.getCookies();
+        if (post != null) {
+            if (cookies != null) {
+                for (Cookie oldCookie : cookies) {
+                    if (oldCookie.getName().equals("postViews")) {
+                        cookie = oldCookie;
+                        break;
+                    }
+                }
+            }
+            if (cookie != null) {
+                if (!cookie.getValue().contains("POST[" + post.getId() + "]")) {
+                    post.updateViews();
+                    postRepository.save(post);
+                    cookie.setValue(cookie.getValue() + "POST[" + post.getId() + "]");
+                }
+            } else {
+                post.updateViews();
+                postRepository.save(post);
+                cookie = new Cookie("postViews", "POST[" + post.getId() + "]");
+            }
+            response.addCookie(setCookieValue(cookie));
+        }
+    }
+
+    // 쿠키 설정
+    private Cookie setCookieValue(Cookie cookie) {
+        cookie.setPath("/");
+        cookie.setMaxAge(60 * 60 * 24);
+        return cookie;
+    }
 }

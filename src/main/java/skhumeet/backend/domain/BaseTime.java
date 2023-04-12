@@ -1,4 +1,4 @@
-package skhumeet.backend.domain.member;
+package skhumeet.backend.domain;
 
 import lombok.Getter;
 import org.springframework.data.annotation.CreatedDate;

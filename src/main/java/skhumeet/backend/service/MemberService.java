@@ -74,7 +74,7 @@ public class MemberService {
         return ResponseEntity.ok("Logout success");
     }
 
-    //Update
+    // Update
     @Transactional
     public MemberDTO.Response update(String username, MemberDTO.Update update) throws IOException {
         Member member = memberRepository.findByLoginId(username)
