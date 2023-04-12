@@ -24,6 +24,8 @@ public class PostDTO {
         private String title;
         @Schema(description = "Category (카테고리)", defaultValue = "Hansotbab")
         private String category;
+        @Schema(description = "Status (카테고리)", defaultValue = "Recruiting")
+        private String status;
         @Schema(description = "Contact (연락처)", defaultValue = "Kakao OpenChat")
         private String contact;
         @Schema(description = "End Date (기한)", defaultValue = "2023-03-31")
@@ -45,6 +47,8 @@ public class PostDTO {
         private Long id;
         @Schema(description = "Category (카테고리)")
         private String category;
+        @Schema(description = "Status (상태)")
+        private String status;
         @Schema(description = "Title (제목)")
         private String title;
         @Schema(description = "Member (작성자)")
@@ -54,7 +58,7 @@ public class PostDTO {
         @Schema(description = "EndDate (기한)")
         private LocalDateTime endDate;
         @Schema(description = "Created Date (작성일)")
-        private LocalDateTime createDate;
+        private LocalDateTime createdDate;
         @Schema(description = "Contact (연락처)")
         private String contact;
         @Schema(description = "View (조회수)", defaultValue = "0")
@@ -68,11 +72,12 @@ public class PostDTO {
         public Response(Post post) {
             this.id = post.getId();
             this.category = post.getCategory().toString();
+            this.status = post.getStatus().toString();
             this.title = post.getTitle();
             this.member = post.getAuthor().getName();
             this.memberNumber = post.getAuthor().getMemberNumber();
             this.endDate = post.getEndDate();
-            this.createDate = post.getCreatedDate();
+            this.createdDate = post.getCreatedDate();
             this.contact = post.getContact();
             this.view = post.getView();
             this.context = post.getContext();
@@ -94,6 +99,8 @@ public class PostDTO {
         private String title;
         @Schema(description = "Category (카테고리)", defaultValue = "Eoullim")
         private String category;
+        @Schema(description = "Status (상태)", defaultValue = "Recruitment Deadline")
+        private String status;
         @Schema(description = "Contact (연락처)", defaultValue = "Google Form")
         private String contact;
         @Schema(description = "EndDate (기한)", defaultValue = "2023-04-13")
