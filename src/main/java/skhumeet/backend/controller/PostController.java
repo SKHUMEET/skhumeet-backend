@@ -87,7 +87,7 @@ public class PostController {
     })
     @GetMapping("/member")
     public Page<PostDTO.Response> findByMember(@AuthenticationPrincipal UserDetails userDetails,
-                                                   @RequestParam("page") Integer pageNumber) {
+                                               @RequestParam("page") Integer pageNumber) {
         Pageable pageable = PageRequest.of(pageNumber == 0 ? 0 : pageNumber-1, 9, Sort.by("id").descending());
         return postService.findByMember(pageable, userDetails.getUsername());
     }
@@ -106,7 +106,7 @@ public class PostController {
     })
     @GetMapping("/category/{category}")
     public Page<PostDTO.Response> findByCategory(@PathVariable("category") String category,
-                                                     @RequestParam("page") Integer pageNumber) {
+                                                 @RequestParam("page") Integer pageNumber) {
         Pageable pageable = PageRequest.of(pageNumber == 0 ? 0 : pageNumber-1, 9, Sort.by("id").descending());
         return postService.findByCategory(pageable, category);
     }
@@ -125,7 +125,7 @@ public class PostController {
     })
     @GetMapping("/keyword/{keyword}")
     public Page<PostDTO.Response> findByKeyword(@PathVariable("keyword") String keyword,
-                                                    @RequestParam("page") Integer pageNumber) {
+                                                @RequestParam("page") Integer pageNumber) {
         Pageable pageable = PageRequest.of(pageNumber == 0 ? 0 : pageNumber-1, 9, Sort.by("id").descending());
         return postService.findByKeyword(pageable, keyword);
     }
@@ -167,8 +167,8 @@ public class PostController {
     })
     @PatchMapping
     public ResponseEntity<PostDTO.Response> update(@AuthenticationPrincipal UserDetails userDetails,
-                                                       @RequestBody PostDTO.Update update,
-                                                       @RequestParam("id") Long id) throws IOException {
+                                                   @RequestBody PostDTO.Update update,
+                                                   @RequestParam("id") Long id) throws IOException {
         return ResponseEntity.ok(postService.update(userDetails.getUsername(), update, id));
     }
 
@@ -185,16 +185,17 @@ public class PostController {
             @ApiResponse(responseCode = "400", description = "Bad Request")
     })
     @DeleteMapping
-    public ResponseEntity<String> delete(@RequestParam("id") Long id) {
-        return postService.delete(id);
+    public ResponseEntity<String> delete(@AuthenticationPrincipal UserDetails userDetails,
+                                         @RequestParam("id") Long id) {
+        return postService.delete(userDetails.getUsername(), id);
     }
 
     // ETC (게시글 관련 기타 API)
     @Operation(
             summary = "Post Bookmark API (게시글 북마크 API)",
             description = """
-                    Delete post by Post ID. Authorize needed.<br/>
-                    게시글의 ID 값을 기준으로 게시글 삭제 요청. 로그인(토큰) 필요.
+                    Save bookmark by Post ID. Authorize needed.<br/>
+                    게시글의 ID 값을 기준으로 해당 게시글 북마크. 로그인(토큰) 필요.
                     """
     )
     @ApiResponses({
@@ -202,9 +203,43 @@ public class PostController {
             @ApiResponse(responseCode = "400", description = "Bad Request")
     })
     @PostMapping("/bookmark")
-    public ResponseEntity<HttpResponseDTO> bookmarking(
-            @AuthenticationPrincipal UserDetails userDetails,
-            @RequestParam("id") Long id) {
-        return bookmarkService.saveBookmark(userDetails.getUsername(), id);
+    public ResponseEntity<HttpResponseDTO> bookmarking(@AuthenticationPrincipal UserDetails userDetails,
+                                                       @RequestParam("postId") Long postId) {
+        return bookmarkService.saveBookmark(userDetails.getUsername(), postId);
+    }
+
+    @Operation(
+            summary = "Read Bookmarks API (북마크 목록 조회 API)",
+            description = """
+                    Read bookmarks by Member. Authorize needed.<br/>
+                    사용자를 기준으로 북마크 목록 조회. 로그인(토큰) 필요.
+                    """
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "Bad Request")
+    })
+    @GetMapping("/bookmark")
+    public ResponseEntity<HttpResponseDTO> getBookmarks(@AuthenticationPrincipal UserDetails userDetails,
+                                                        @RequestParam("page") Integer pageNumber) {
+        Pageable pageable = PageRequest.of(pageNumber == 0 ? 0 : pageNumber-1, 9, Sort.by("id").descending());
+        return bookmarkService.findBookmarkByMember(pageable, userDetails.getUsername());
+    }
+
+    @Operation(
+            summary = "Delete Bookmark API (북마크 삭제 API)",
+            description = """
+                    Delete bookmark by ID. Authorize needed.<br/>
+                    ID를 기준으로 북마크 삭제 요청. 로그인(토큰) 필요.
+                    """
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "Bad Request")
+    })
+    @DeleteMapping("/bookmark")
+    public ResponseEntity<HttpResponseDTO> deleteBookmark(@AuthenticationPrincipal UserDetails userDetails,
+                                                          @RequestParam("bookmarkId") Long id) {
+        return bookmarkService.deleteBookmark(userDetails.getUsername(), id);
     }
 }

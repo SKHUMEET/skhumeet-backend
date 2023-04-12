@@ -143,20 +143,24 @@ public class PostService {
 
     // Delete
     @Transactional
-    public ResponseEntity<String> delete(Long id) {
+    public ResponseEntity<String> delete(String username, Long id) {
         try {
             Post post = postRepository.findById(id)
                     .orElseThrow(() -> new NoSuchElementException("Main post not found"));
-            if (post.getImages() != null) {
-                for (String imageName : post.getImages()) {
-                    ImageDTO.Response image = imageService.findByStoredImageName(imageName);
-                    imageService.deleteImage("main/", image.getImagePath());
+            if (post.getAuthor().getName().equals(username)) {
+                if (post.getImages() != null) {
+                    for (String imageName : post.getImages()) {
+                        ImageDTO.Response image = imageService.findByStoredImageName(imageName);
+                        imageService.deleteImage("main/", image.getImagePath());
+                    }
                 }
+                postRepository.deleteById(id);
+            } else {
+                throw new AuthorizationServiceException("Unauthorized access");
             }
-            postRepository.deleteById(id);
         } catch (Exception e) {
             System.out.println(e.getMessage());
-            return new ResponseEntity<>("Exception occurred", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
         return ResponseEntity.ok("Delete success");
     }

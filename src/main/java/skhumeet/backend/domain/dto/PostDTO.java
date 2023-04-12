@@ -34,7 +34,7 @@ public class PostDTO {
         private int view;
         @Schema(description = "Context (내용)", defaultValue = "Test Context")
         private String context;
-        @Schema(description = "Input paths that returned by Image API", defaultValue = "")
+        @Schema(description = "Input paths that returned by Image API", defaultValue = "[]")
         private List<String> images;
     }
 
@@ -64,7 +64,7 @@ public class PostDTO {
         private int view;
         @Schema(description = "Context (내용)")
         private String context;
-        @Schema(description = "Image files (이미지 목록)", defaultValue = "")
+        @Schema(description = "Image files (이미지 목록)")
         private List<String> images;
 
         @QueryProjection
@@ -106,7 +106,7 @@ public class PostDTO {
         private LocalDateTime endDate;
         @Schema(description = "Context (내용)", defaultValue = "Modified Context")
         private String context;
-        @Schema(description = "Image files (이미지 목록)", defaultValue = "")
+        @Schema(description = "Image files (이미지 목록)", defaultValue = "[]")
         private List<String> images;
     }
 }
