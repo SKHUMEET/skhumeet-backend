@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import skhumeet.backend.domain.member.BaseTime;
+import skhumeet.backend.domain.BaseTime;
 import skhumeet.backend.domain.member.Member;
 import skhumeet.backend.util.StringListConverter;
 
@@ -64,7 +64,7 @@ public class Post extends BaseTime {
     private List<String> images;
 
 
-    public void increaseViews() {
+    public void updateViews() {
         this.view++;
     }
 }

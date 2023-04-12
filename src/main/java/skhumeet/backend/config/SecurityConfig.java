@@ -28,10 +28,10 @@ public class SecurityConfig {
     private final TokenProvider tokenProvider;
     private final LogoutAccessTokenRedisRepository logoutAccessTokenRedisRepository;
     private static final String[] PERMITTED_URLS = {
-            "/api/main/**",
-            "/api/board/**",
-            "/api/study/**",
-            "/api/comment/**"
+            "/api/member/join",
+            "/api/member/login",
+            "/api/member/logout",
+            "/api/member/reissue"
     };
 
     @Bean
@@ -48,7 +48,7 @@ public class SecurityConfig {
                 .and()
                 .authorizeRequests()
                 .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
-                .antMatchers(HttpMethod.GET, PERMITTED_URLS).permitAll()
+                .antMatchers(PERMITTED_URLS).permitAll()
                 .anyRequest().authenticated();
         http
                 .addFilterBefore(new JwtFilter(tokenProvider, logoutAccessTokenRedisRepository), UsernamePasswordAuthenticationFilter.class);
@@ -88,9 +88,8 @@ public class SecurityConfig {
                         "/webjars/**",
                         "/api-docs/**",
                         "/v3/api-docs/**",
-                        "/swagger-ui/**",
-                        "/api/member/join",
-                        "/api/member/login");
+                        "/swagger-ui/**"
+                );
     }
 }
 

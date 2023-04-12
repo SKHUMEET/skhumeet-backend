@@ -1,7 +1,7 @@
 package skhumeet.backend.domain.study;
 
 import lombok.*;
-import skhumeet.backend.domain.member.BaseTime;
+import skhumeet.backend.domain.BaseTime;
 import skhumeet.backend.domain.member.Member;
 
 import javax.persistence.*;
@@ -13,7 +13,7 @@ import javax.persistence.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class LikePost extends BaseTime {
+public class Bookmark extends BaseTime {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

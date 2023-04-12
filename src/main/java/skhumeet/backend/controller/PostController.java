@@ -13,7 +13,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import skhumeet.backend.domain.dto.HttpResponseDTO;
 import skhumeet.backend.domain.dto.PostDTO;
+import skhumeet.backend.service.BookmarkService;
 import skhumeet.backend.service.PostService;
 
 import javax.servlet.http.HttpServletRequest;
@@ -23,9 +25,10 @@ import java.io.IOException;
 @Tag(name = "Post API (게시글 관련 API)", description = "API for Post CRUD (게시글 CRUD를 위한 API)")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/main")
+@RequestMapping("/api/post")
 public class PostController {
     private final PostService postService;
+    private final BookmarkService bookmarkService;
 
     // Create (게시글 작성)
     @Operation(
@@ -44,7 +47,7 @@ public class PostController {
             @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "400", description = "Bad Request")
     })
-    @PostMapping(value = "/new")
+    @PostMapping("/new")
     public ResponseEntity<PostDTO.Response> save(@AuthenticationPrincipal UserDetails userDetails,
                                                  @RequestBody PostDTO.Request request) throws IOException {
         return ResponseEntity.ok(postService.save(userDetails.getUsername(), request));
@@ -63,9 +66,11 @@ public class PostController {
             @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "400", description = "Bad Request")
     })
-    @GetMapping("/post")
-    public ResponseEntity<PostDTO.Response> findById(@RequestParam("id") Long id) {
-        return ResponseEntity.ok(postService.findById(id));
+    @GetMapping
+    public ResponseEntity<PostDTO.Response> findById(@RequestParam("id") Long id,
+                                                     HttpServletRequest request,
+                                                     HttpServletResponse response) {
+        return ResponseEntity.ok(postService.findById(id, request, response));
     }
 
     // Member가 작성한 Post 조회
@@ -80,23 +85,12 @@ public class PostController {
             @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "400", description = "Bad Request")
     })
-    @GetMapping("/post/member")
+    @GetMapping("/member")
     public Page<PostDTO.Response> findByMember(@AuthenticationPrincipal UserDetails userDetails,
                                                    @RequestParam("page") Integer pageNumber) {
         Pageable pageable = PageRequest.of(pageNumber == 0 ? 0 : pageNumber-1, 9, Sort.by("id").descending());
         return postService.findByMember(pageable, userDetails.getUsername());
     }
-
-//    // postid로 view 증가
-//    @Operation(summary = "View Increase", description = "View increments each time a post is viewed")
-//    @ApiResponses({
-//            @ApiResponse(responseCode = "200", description = "OK"),
-//            @ApiResponse(responseCode = "400", description = "Bad Request")
-//    })
-//    @PatchMapping("/{id}/view")
-//    public ResponseEntity<Void> increaseViewCount(@PathVariable Long id, HttpServletResponse response, HttpServletRequest request) {
-//        return postService.increaseViewCount(id, response, request);
-//    }
 
     // 카테고리별 조회
     @Operation(
@@ -171,7 +165,7 @@ public class PostController {
             @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "400", description = "Bad Request")
     })
-    @PatchMapping(value = "/post")
+    @PatchMapping
     public ResponseEntity<PostDTO.Response> update(@AuthenticationPrincipal UserDetails userDetails,
                                                        @RequestBody PostDTO.Update update,
                                                        @RequestParam("id") Long id) throws IOException {
@@ -190,8 +184,27 @@ public class PostController {
             @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "400", description = "Bad Request")
     })
-    @DeleteMapping("/post")
+    @DeleteMapping
     public ResponseEntity<String> delete(@RequestParam("id") Long id) {
         return postService.delete(id);
+    }
+
+    // ETC (게시글 관련 기타 API)
+    @Operation(
+            summary = "Post Bookmark API (게시글 북마크 API)",
+            description = """
+                    Delete post by Post ID. Authorize needed.<br/>
+                    게시글의 ID 값을 기준으로 게시글 삭제 요청. 로그인(토큰) 필요.
+                    """
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "Bad Request")
+    })
+    @PostMapping("/bookmark")
+    public ResponseEntity<HttpResponseDTO> bookmarking(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestParam("id") Long id) {
+        return bookmarkService.saveBookmark(userDetails.getUsername(), id);
     }
 }
