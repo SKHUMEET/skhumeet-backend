@@ -240,7 +240,7 @@ public class PostController {
     })
     @DeleteMapping("/bookmark")
     public ResponseEntity<HttpResponseDTO> deleteBookmark(@AuthenticationPrincipal UserDetails userDetails,
-                                                          @RequestParam("bookmarkId") Long id) {
-        return bookmarkService.deleteBookmark(userDetails.getUsername(), id);
+                                                          @RequestParam("postId") Long postId) {
+        return bookmarkService.deleteBookmark(userDetails.getUsername(), postId);
     }
 }

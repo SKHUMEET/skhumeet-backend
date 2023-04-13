@@ -31,4 +31,9 @@ public class HttpResponseDTO {
         this.message = message;
         this.data = data;
     }
+
+    // Message constructor
+    public HttpResponseDTO(String message) {
+        this.message = message;
+    }
 }

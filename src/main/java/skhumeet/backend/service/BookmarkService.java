@@ -52,22 +52,26 @@ public class BookmarkService {
 
     // Delete (북마크 제거)
     @Transactional
-    public ResponseEntity<HttpResponseDTO> deleteBookmark(String username, Long id) {
+    public ResponseEntity<HttpResponseDTO> deleteBookmark(String username, Long postId) {
+        Member member = memberRepository.findByLoginId(username)
+                .orElseThrow(() -> new NoSuchElementException("Member not found"));
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new NoSuchElementException("Post not found"));
         try {
-            Bookmark bookmark = bookmarkRepository.findById(id)
+            Bookmark bookmark = bookmarkRepository.findByMemberAndPost(member, post)
                     .orElseThrow(() -> new NoSuchElementException("Bookmark not found"));
             if (bookmark.getMember().getLoginId().equals(username)) {
-                bookmarkRepository.deleteById(id);
+                bookmarkRepository.delete(bookmark);
             } else {
                 throw new AuthorizationServiceException("Unauthorized access");
             }
         } catch (Exception e) {
             System.out.println(e.getMessage());
             return new ResponseEntity<>(
-                    new HttpResponseDTO(e.getMessage(), "Fail to delete Bookmark: " + id),
+                    new HttpResponseDTO(e.getMessage(), "Fail to delete Bookmark"),
                     HttpStatus.BAD_REQUEST
             );
         }
-        return ResponseEntity.ok(new HttpResponseDTO("Delete success", "Deleted Bookmark: " + id));
+        return ResponseEntity.ok(new HttpResponseDTO("Delete success"));
     }
 }
