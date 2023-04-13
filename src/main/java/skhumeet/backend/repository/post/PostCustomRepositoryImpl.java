@@ -8,7 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 import skhumeet.backend.domain.dto.PostDTO;
-import skhumeet.backend.domain.dto.QPostDTO_Response;
+import skhumeet.backend.domain.study.Post;
 
 import java.util.List;
 
@@ -20,9 +20,9 @@ public class PostCustomRepositoryImpl implements PostCustomRepository {
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
-    public Page<PostDTO.Response> findByKeyword(Pageable pageable, String keyword) {
-        List<PostDTO.Response> searchResult = jpaQueryFactory
-                .select(new QPostDTO_Response(post))
+    public Page<Post> findByKeyword(Pageable pageable, String keyword) {
+        List<Post> searchResult = jpaQueryFactory
+                .select(post)
                 .from(post)
                 .where(post.title.containsIgnoreCase(keyword)
                         .or(post.context.containsIgnoreCase(keyword))

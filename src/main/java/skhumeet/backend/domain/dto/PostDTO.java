@@ -41,28 +41,31 @@ public class PostDTO {
 
     @Schema(name = "PostDTO.Response (게시글 API 응답 DTO)")
     @Getter
+    @Setter
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class Response {
         @Schema(description = "ID (게시글 ID)")
         private Long id;
-        @Schema(description = "Category (카테고리)")
-        private String category;
-        @Schema(description = "Status (상태)")
-        private String status;
-        @Schema(description = "Title (제목)")
-        private String title;
         @Schema(description = "Member (작성자)")
         private String member;
         @Schema(description = "MemberNumber (학번 또는 교번)")
         private String memberNumber;
-        @Schema(description = "EndDate (기한)")
-        private LocalDateTime endDate;
-        @Schema(description = "Created Date (작성일)")
-        private LocalDateTime createdDate;
+        @Schema(description = "Category (카테고리)")
+        private String category;
+        @Schema(description = "Status (상태)")
+        private String status;
         @Schema(description = "Contact (연락처)")
         private String contact;
+        @Schema(description = "Created Date (작성일)")
+        private LocalDateTime createdDate;
+        @Schema(description = "EndDate (기한)")
+        private LocalDateTime endDate;
         @Schema(description = "View (조회수)", defaultValue = "0")
         private int view;
+        @Schema(description = "Bookmark (북마크 여부)")
+        private boolean isBookmarked;
+        @Schema(description = "Title (제목)")
+        private String title;
         @Schema(description = "Context (내용)")
         private String context;
         @Schema(description = "Image files (이미지 목록)")
@@ -71,15 +74,16 @@ public class PostDTO {
         @QueryProjection
         public Response(Post post) {
             this.id = post.getId();
-            this.category = post.getCategory().toString();
-            this.status = post.getStatus().toString();
-            this.title = post.getTitle();
             this.member = post.getAuthor().getName();
             this.memberNumber = post.getAuthor().getMemberNumber();
-            this.endDate = post.getEndDate();
-            this.createdDate = post.getCreatedDate();
+            this.category = post.getCategory().toString();
+            this.status = post.getStatus().toString();
             this.contact = post.getContact();
+            this.createdDate = post.getCreatedDate();
+            this.endDate = post.getEndDate();
             this.view = post.getView();
+            this.isBookmarked = post.isBookmarked();
+            this.title = post.getTitle();
             this.context = post.getContext();
             this.images = new ArrayList<>();
             if (post.getImages() != null) {

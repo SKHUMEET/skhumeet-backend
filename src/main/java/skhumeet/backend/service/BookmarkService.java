@@ -56,7 +56,7 @@ public class BookmarkService {
         try {
             Bookmark bookmark = bookmarkRepository.findById(id)
                     .orElseThrow(() -> new NoSuchElementException("Bookmark not found"));
-            if (bookmark.getMember().getName().equals(username)) {
+            if (bookmark.getMember().getLoginId().equals(username)) {
                 bookmarkRepository.deleteById(id);
             } else {
                 throw new AuthorizationServiceException("Unauthorized access");
