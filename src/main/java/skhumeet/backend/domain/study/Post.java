@@ -24,24 +24,24 @@ public class Post extends BaseTime {
     @Column(name = "post_id")
     private Long id;
 
-    //작성자
+    // 작성자
     @ManyToOne
     @JoinColumn(name = "post_author")
     private Member author;
 
-    //카테고리
+    // 카테고리
     @Enumerated(EnumType.STRING)
     private Category category;
 
-    //상태
+    // 상태
     @Enumerated(EnumType.STRING)
     private Status status;
 
-    //연락 방법
+    // 연락처
     @Column(name = "contact", nullable = false)
     private String contact;
 
-    //마감일
+    // 마감일
     @Column(name="endDate")
     private LocalDateTime endDate;
 
@@ -49,21 +49,28 @@ public class Post extends BaseTime {
     @Column(name="view")
     private int view;
 
-    //제목
+    // 제목
     @Column(name = "title")
     private String title;
 
-    //내용
+    // 내용
     @Size(min = 1, max = 65534)
     @Column(name = "context", columnDefinition = "TEXT", nullable = false)
     private String context;
 
-    //이미지
+    @Transient
+    private boolean isBookmarked;
+
+    // 이미지
     @Column(name = "images", length = 2048)
     @Convert(converter = StringListConverter.class)
     private List<String> images;
 
     public void updateViews() {
         this.view++;
+    }
+
+    public void updateIsBookmarked(boolean isBookmarked) {
+        this.isBookmarked = isBookmarked;
     }
 }

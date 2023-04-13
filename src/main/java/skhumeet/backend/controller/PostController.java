@@ -67,10 +67,11 @@ public class PostController {
             @ApiResponse(responseCode = "400", description = "Bad Request")
     })
     @GetMapping
-    public ResponseEntity<PostDTO.Response> findById(@RequestParam("id") Long id,
+    public ResponseEntity<PostDTO.Response> findById(@AuthenticationPrincipal UserDetails userDetails,
+                                                     @RequestParam("id") Long id,
                                                      HttpServletRequest request,
                                                      HttpServletResponse response) {
-        return ResponseEntity.ok(postService.findById(id, request, response));
+        return ResponseEntity.ok(postService.findById(userDetails.getUsername(), id, request, response));
     }
 
     // Member가 작성한 Post 조회

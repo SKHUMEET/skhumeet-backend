@@ -14,6 +14,7 @@ import skhumeet.backend.domain.member.Member;
 import skhumeet.backend.domain.study.Category;
 import skhumeet.backend.domain.study.Post;
 import skhumeet.backend.domain.study.Status;
+import skhumeet.backend.repository.BookmarkRepository;
 import skhumeet.backend.repository.MemberRepository;
 import skhumeet.backend.repository.post.PostRepository;
 
@@ -29,9 +30,9 @@ import java.util.NoSuchElementException;
 @Service
 @RequiredArgsConstructor
 public class PostService {
-
     private final MemberRepository memberRepository;
     private final PostRepository postRepository;
+    private final BookmarkRepository bookmarkRepository;
     private final ImageService imageService;
     private final EntityManager entityManager;
 
@@ -56,26 +57,21 @@ public class PostService {
     // Read
     @Transactional(readOnly = true)
     public Page<PostDTO.Response> findAll(Pageable pageable) {
-        return postRepository.findAll(pageable).map(post -> {
-            if (post.getImages() != null) {
-                post.getImages().replaceAll(
-                        storedImageName -> imageService.findByStoredImageName(storedImageName).getImagePath()
-                );
-            }
-            return post;
-        }).map(PostDTO.Response::new);
+        return postRepository.findAll(pageable).map(this::replaceImagePath).map(PostDTO.Response::new);
     }
 
     @Transactional
-    public PostDTO.Response findById(Long id, HttpServletRequest request, HttpServletResponse response) {
-        return new PostDTO.Response(postRepository.findById(id).map(post -> {
-            if (post.getImages() != null) {
-                post.getImages().replaceAll(
-                        storedImageName -> imageService.findByStoredImageName(storedImageName).getImagePath()
-                );
+    public PostDTO.Response findById(String loginId, Long postId, HttpServletRequest request, HttpServletResponse response) {
+        Member currentMember = memberRepository.findByLoginId(loginId)
+                .orElseThrow(() -> new NoSuchElementException("Member not found"));
+        return new PostDTO.Response(postRepository.findById(postId).map(post -> {
+            if(bookmarkRepository.findByMemberAndPost(currentMember, post).isPresent()) {
+                post.updateIsBookmarked(true);
+            } else {
+                post.updateIsBookmarked(false);
             }
             countViews(post, request, response);
-            return post;
+            return replaceImagePath(post);
         }).orElseThrow(() -> new NoSuchElementException("There is no Post with this ID")));
     }
 
@@ -83,39 +79,18 @@ public class PostService {
     public Page<PostDTO.Response> findByMember(Pageable pageable, String username) {
         Member member = memberRepository.findByLoginId(username) //id로 user 찾기
                 .orElseThrow(() -> new NoSuchElementException("Member not found"));
-        return postRepository.findByAuthor(pageable, member).map(post -> {
-            if (post.getImages() != null) {
-                post.getImages().replaceAll(
-                        storedImageName -> imageService.findByStoredImageName(storedImageName).getImagePath()
-                );
-            }
-            return post;
-        }).map(PostDTO.Response::new);
+        return postRepository.findByAuthor(pageable, member).map(this::replaceImagePath).map(PostDTO.Response::new);
     }
 
     @Transactional(readOnly = true)
     public Page<PostDTO.Response> findByCategory(Pageable pageable, String category) {
         return postRepository.findByCategory(pageable, Category.valueOf(category.toUpperCase()))
-                .map(post -> {
-                    if (post.getImages() != null) {
-                        post.getImages().replaceAll(
-                                storedImageName -> imageService.findByStoredImageName(storedImageName).getImagePath()
-                        );
-                    }
-                    return post;
-                }).map(PostDTO.Response::new);
+                .map(this::replaceImagePath).map(PostDTO.Response::new);
     }
 
     @Transactional(readOnly = true)
     public Page<PostDTO.Response> findByKeyword(Pageable pageable, String keyword) {
-        return postRepository.findByKeyword(pageable, keyword).map(post -> {
-            if (post.getImages() != null) {
-                post.getImages().replaceAll(
-                        storedImageName -> imageService.findByStoredImageName(storedImageName).getImagePath()
-                );
-            }
-            return post;
-        });
+        return postRepository.findByKeyword(pageable, keyword).map(this::replaceImagePath).map(PostDTO.Response::new);
     }
 
     // Update
@@ -147,7 +122,7 @@ public class PostService {
         try {
             Post post = postRepository.findById(id)
                     .orElseThrow(() -> new NoSuchElementException("Main post not found"));
-            if (post.getAuthor().getName().equals(username)) {
+            if (post.getAuthor().getLoginId().equals(username)) {
                 if (post.getImages() != null) {
                     for (String imageName : post.getImages()) {
                         ImageDTO.Response image = imageService.findByStoredImageName(imageName);
@@ -213,5 +188,14 @@ public class PostService {
         cookie.setPath("/");
         cookie.setMaxAge(60 * 60 * 24);
         return cookie;
+    }
+
+    private Post replaceImagePath(Post post) {
+        if (post.getImages() != null) {
+            post.getImages().replaceAll(
+                    storedImageName -> imageService.findByStoredImageName(storedImageName).getImagePath()
+            );
+        }
+        return post;
     }
 }
