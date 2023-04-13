@@ -38,7 +38,9 @@ public class BookmarkService {
                 .member(member)
                 .post(post)
                 .build();
+        post.updateIsBookmarked(true);
         bookmarkRepository.save(bookmark);
+        postRepository.save(post);
         return ResponseEntity.ok(new HttpResponseDTO("Bookmarking success", new BookmarkDTO.Response(bookmark)));
     }
 

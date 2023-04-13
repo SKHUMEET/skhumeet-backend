@@ -104,6 +104,7 @@ public class PostService {
                     .title(update.getTitle())
                     .author(oldPost.getAuthor())
                     .category(Category.valueOf(update.getCategory().toUpperCase()))
+                    .status(Status.valueOf(update.getStatus().toUpperCase()))
                     .endDate(update.getEndDate())
                     .contact(update.getContact())
                     .context(update.getContext())

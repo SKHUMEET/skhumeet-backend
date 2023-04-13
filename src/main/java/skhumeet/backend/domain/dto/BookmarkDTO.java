@@ -11,11 +11,11 @@ public class BookmarkDTO {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class Response {
         private Long id;
-        private Long postId;
+        private PostDTO.Response post;
 
         public Response(Bookmark bookmark) {
             this.id = bookmark.getId();
-            this.postId = bookmark.getPost().getId();
+            this.post = new PostDTO.Response(bookmark.getPost());
         }
     }
 }
