@@ -38,6 +38,7 @@ public class CommentService {
         return new CommentDTO.Response(commentRepository.save(comment));
     }
 
+    @Transactional
     public CommentDTO.Response reply(String username, CommentDTO.Reply reply) {
         Comment comment = Comment.builder()
                 .post(postRepository.findById(reply.getPostId())
@@ -72,6 +73,7 @@ public class CommentService {
     }
 
     //Update
+    @Transactional
     public CommentDTO.Response update(String username, CommentDTO.Update update, Long postId, Long id) {
         postRepository.findById(postId)
                 .orElseThrow(() -> new NoSuchElementException("Post not found"));
@@ -93,6 +95,7 @@ public class CommentService {
     }
 
     // Delete
+    @Transactional
     public ResponseEntity<String> delete(Long id) {
         Comment comment = this.findById(id);
         commentRepository.delete(comment);

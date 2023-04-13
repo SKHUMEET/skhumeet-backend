@@ -18,7 +18,7 @@ public class CommentDTO {
     @AllArgsConstructor
     public static class Request {
         @Schema(description = "Post ID (게시글 ID)", defaultValue = "1")
-        private Long PostId;
+        private Long postId;
         @Schema(description = "Context (댓글 내용)", defaultValue = "Test comment context")
         private String context;
     }
