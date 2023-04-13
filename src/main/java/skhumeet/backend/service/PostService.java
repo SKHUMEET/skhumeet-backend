@@ -107,6 +107,7 @@ public class PostService {
                     .status(Status.valueOf(update.getStatus().toUpperCase()))
                     .endDate(update.getEndDate())
                     .contact(update.getContact())
+                    .view(update.getView())
                     .context(update.getContext())
                     .images(new ArrayList<>())
                     .build();

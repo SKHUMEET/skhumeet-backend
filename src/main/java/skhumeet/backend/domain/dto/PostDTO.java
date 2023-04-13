@@ -108,6 +108,8 @@ public class PostDTO {
         private String contact;
         @Schema(description = "EndDate (기한)", defaultValue = "2023-04-13")
         private LocalDateTime endDate;
+        @Schema(description = "View count (조회수)", defaultValue = "1")
+        private int view;
         @Schema(description = "Context (내용)", defaultValue = "Modified Context")
         private String context;
         @Schema(description = "Image files (이미지 목록)", defaultValue = "[]")
