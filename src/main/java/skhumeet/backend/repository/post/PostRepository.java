@@ -12,5 +12,4 @@ import skhumeet.backend.domain.study.Post;
 public interface PostRepository extends JpaRepository<Post, Long>, PostCustomRepository {
     Page<Post> findByCategory(Pageable pageable, Category category);
     Page<Post> findByAuthor(Pageable pageable, Member member);
-
 }
