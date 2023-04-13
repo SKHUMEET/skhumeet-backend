@@ -193,6 +193,7 @@ public class PostService {
     }
 
     private Post replaceImagePath(Post post) {
+        entityManager.detach(post);
         if (post.getImages() != null) {
             post.getImages().replaceAll(
                     storedImageName -> imageService.findByStoredImageName(storedImageName).getImagePath()
