@@ -5,7 +5,7 @@
 
 </div>
 
-# SKHUMEET - 스쿠밋
+# 🌳 SKHUMEET - 스쿠밋
 ### SKHUMEET이 세상에 나오게 된 이유
 <div align="justify">
 
@@ -19,29 +19,29 @@
 <br/><br/>
 </div>
 
-## Tech Stack
+## 🛠 Tech Stack
 ![TechStack](https://user-images.githubusercontent.com/14046092/231841157-5f9c42f5-9273-43b4-9379-7bf1137fafaf.png)
 <br/><br/>
 
-## ERD
+## 🛢 ERD
 <div align="center">
   <img width="710" alt="ERD" src="https://user-images.githubusercontent.com/14046092/231848889-9e9884a1-a6f7-4faa-bbe3-f7a89bce49f8.png">
 </div>
 
-## API
+## 📱 API
 * [Swagger에서 확인하기](http://api-skhumeet.duckdns.org/swagger-ui/index.html)
 <br/><br/>
 
-## Design
+## 🎨 Design
 * [Figma에서 확인하기](https://www.figma.com/file/uFcTbGO4poLZEG6Pg2whdP/SkhuMeet?node-id=0%3A1&t=PbaEyAmnjC1wKWQS-1)
 <br/><br/>
 
-## Repositories
+## 🗂 Repositories
 * [Frontend Repository](https://github.com/SKHUMEET/skhumeet-frontend)
 * [Backend Repository](https://github.com/SKHUMEET/skhumeet-backend)
 <br/><br/>
 
-## Team SKHUMEET
+## 👥 Team SKHUMEET
 |[박지영](https://github.com/JIYEONGSTAR)|[이한길](https://github.com/hangillee)|[이지윤](https://github.com/dd-jiyun)|[이은지](https://github.com/Lee2Eunji)|
 |:---:|:---:|:---:|:---:|
 |<img src="https://github.com/JIYEONGSTAR.png">|<img src="https://github.com/hangillee.png">|<img src="https://github.com/dd-jiyun.png">|<img src="https://github.com/Lee2Eunji.png">|
